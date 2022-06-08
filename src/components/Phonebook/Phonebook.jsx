@@ -1,43 +1,67 @@
+import { useState, useCallback, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import {
   getContacts,
-  getFilteredContacts,
-} from 'redux/contacts/contactsSelector';
-import actionCreators from 'redux/contacts/contactsActions';
+  getLoading,
+  getError,
+} from 'redux/contacts/contacts-selector';
 
 import Form from 'components/Form/Form';
 import Filter from 'components/Filter/Filter';
 import ContactsList from 'components/ContactsList/ContactsList';
 
+import * as operations from '../../redux/contacts/contacts-operations';
+
 const Phonebook = () => {
+  const [filter, setFilter] = useState('');
+
   const contacts = useSelector(getContacts);
-  const filteredContacts = useSelector(getFilteredContacts);
+  const loading = useSelector(getLoading);
+  const error = useSelector(getError);
 
   const dispatch = useDispatch();
 
-  const addContact = ({ name, number }) => {
-    const searchedName = name.toLowerCase();
+  useEffect(() => {
+    dispatch(operations.fetchContacts());
+  }, [dispatch]);
 
-    if (contacts.some(element => element.name.toLowerCase() === searchedName)) {
-      return alert(`${name} is already in contacts.`);
-    }
-    dispatch(actionCreators.addContact({ name, number }));
+  const addContact = ({ name, phone }) => {
+    dispatch(operations.addContact({ name, phone }));
   };
 
   const removeContact = id => {
-    dispatch(actionCreators.removeContact(id));
+    dispatch(operations.removeContact(id));
   };
 
+  const changeFilter = useCallback(({ target }) => setFilter(target.value), []);
+
+  const getFilteredContacts = () => {
+    if (!filter) {
+      return contacts;
+    }
+    const filterStr = filter.toLowerCase();
+    const result = contacts.filter(item => {
+      const name = item.name.toLowerCase();
+      return name.includes(filterStr);
+    });
+    return result;
+  };
+
+  const filteredContacts = getFilteredContacts();
   return (
     <div>
       <h2>Phonebook</h2>
       <Form onSubmit={addContact} />
       <h3>Contacts</h3>
-      <Filter />
-      <ContactsList
-        filteredContacts={filteredContacts}
-        removeContact={removeContact}
-      />
+      <Filter filter={filter} handleChange={changeFilter} />
+      {loading && <p>...Loading</p>}
+      {error && <p>{error.message}</p>}
+      {Boolean(filteredContacts.length) && (
+        <ContactsList
+          filteredContacts={filteredContacts}
+          removeContact={removeContact}
+        />
+      )}
     </div>
   );
 };

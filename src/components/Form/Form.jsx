@@ -3,7 +3,7 @@ import { useState } from 'react';
 const Form = ({ onSubmit }) => {
   const [form, setForm] = useState({
     name: '',
-    number: '',
+    phone: '',
   });
 
   const handleChange = ({ target }) => {
@@ -16,7 +16,7 @@ const Form = ({ onSubmit }) => {
   const handleSubmit = e => {
     e.preventDefault();
     onSubmit({ ...form });
-    setForm({ name: '', number: '' });
+    setForm({ name: '', phone: '' });
   };
   return (
     <form onSubmit={handleSubmit}>
@@ -30,12 +30,12 @@ const Form = ({ onSubmit }) => {
         title="Name may contain only letters, apostrophe, dash and spaces. For example Adrian, Jacob Mercer, Charles de Batz de Castelmore d'Artagnan"
         required
       />
-      <label htmlFor="number">Number</label>
+      <label htmlFor="phone">Number</label>
       <input
         onChange={handleChange}
         type="tel"
-        name="number"
-        value={form.number}
+        name="phone"
+        value={form.phone}
         pattern="\+?\d{1,4}?[-.\s]?\(?\d{1,3}?\)?[-.\s]?\d{1,4}[-.\s]?\d{1,4}[-.\s]?\d{1,9}"
         title="Phone number must be digits and can contain spaces, dashes, parentheses and can start with +"
         required
